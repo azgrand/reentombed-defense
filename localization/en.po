@@ -123,3 +123,36 @@ msgstr "Frost"
 msgid "tower.frost.description"
 msgstr "Slows enemies."
 
+msgid "shop.support"
+msgstr "Support"
+
+msgid "shop.details"
+msgstr "{name}\nCost: {cost} · Damage: {damage}\nRange: {range} · Cooldown: {cooldown}s\n{dps}\n{description}"
+
+msgid "shop.dps"
+msgstr "Direct DPS: {value}"
+
+msgid "tower.venom.name"
+msgstr "Venom"
+
+msgid "tower.venom.description"
+msgstr "Poison: 9 damage/s for 3s. Refreshes duration without stacking."
+
+msgid "tower.storm.name"
+msgstr "Storm"
+
+msgid "tower.storm.description"
+msgstr "Up to 3 jumps within 1.8 cells. Each jump retains 70% damage."
+
+msgid "tower.pierce.name"
+msgstr "Ballista"
+
+msgid "tower.pierce.description"
+msgstr "Pierces up to 3 aligned enemies."
+
+msgid "tower.banner.name"
+msgstr "Banner"
+
+msgid "tower.banner.description"
+msgstr "Aura: allies fire 15% faster. Only the strongest aura applies."
+

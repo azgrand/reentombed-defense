@@ -34,6 +34,8 @@ var message: Label
 var seed_input: LineEdit
 var wave_button: Button
 var tower_buttons: Array[Button] = []
+const TowerShop = preload("res://scripts/ui/tower_shop.gd")
+var shop: VBoxContainer
 var hint := "game.instructions"
 var hint_args := {}
 const Navigation = preload("res://scripts/ui/navigation.gd")
@@ -95,15 +97,12 @@ func _build_ui() -> void:
 	_label("REENTOMBED / DEFENSE", Vector2(28, 18), Vector2(800, 42), 32)
 	_label(tr("game.subtitle"), Vector2(30, 65), Vector2(850, 28), 16)
 	_label(tr("shop.title"), Vector2(928, 110), Vector2(300, 35), 25)
-	for i in range(balance.towers.size()):
-		var spec: Dictionary = balance.towers[i]
-		var text_value := tr("shop.card").format({"shortcut": i + 1, "name": tr(spec.name_key), "cost": spec.cost, "damage": spec.damage, "range": spec.range})
-		var button := _button(text_value, Vector2(928, 162 + i * 84), Vector2(320, 72), _select.bind(i))
-		button.icon = Art.TOWERS[spec.id]
-		button.expand_icon = true
-		button.add_theme_constant_override("icon_max_width", 24)
-		button.add_theme_constant_override("h_separation", 14)
-		tower_buttons.append(button)
+	shop = TowerShop.new()
+	shop.game = self
+	shop.position = Vector2(928, 156)
+	shop.size = Vector2(320, 260)
+	add_child(shop)
+	tower_buttons.assign(shop.buttons)
 	stats = _label("", Vector2(928, 435), Vector2(320, 90), 20)
 	wave_button = _button(tr("game.start_wave"), Vector2(928, 540), Vector2(320, 44), _start_wave)
 	_button(tr("game.pause"), Vector2(928, 594), Vector2(320, 38), _toggle_pause)
@@ -173,7 +172,7 @@ func _refresh_ui() -> void:
 	stats.text = tr("game.stats").format({"gold": gold, "lives": lives, "wave": wave, "total": balance.waves})
 	wave_button.disabled = active or ended
 	for i in range(tower_buttons.size()):
-		tower_buttons[i].modulate = Color("67e8c4") if i == selected else Color.WHITE
+		tower_buttons[i].modulate = Color("67e8c4") if i == selected else (Color("888888") if gold < int(balance.towers[i].cost) else Color.WHITE)
 	var arguments := hint_args.duplicate()
 	if arguments.has("name_key"):
 		arguments.name = tr(arguments.name_key)
@@ -217,16 +216,26 @@ func _unhandled_input(event: InputEvent) -> void:
 		_refresh_ui()
 		renderer.queue_redraw()
 
-func _place_tower(cell: Vector2i) -> void:
+func placement_error(cell: Vector2i) -> String:
+	if paused or ended:
+		return "game.paused" if paused else "game.defeat"
 	if cell.x < 0 or cell.y < 0 or cell.x >= Mapper.WIDTH or cell.y >= Mapper.HEIGHT:
-		return
+		return "game.blocked"
 	if map_data.cells[cell.y][cell.x] != Mapper.PAD:
-		hint = "game.blocked"
-		return
+		return "game.blocked"
 	for tower in towers:
 		if tower.cell == cell:
-			hint = "game.occupied"
-			return
+			return "game.occupied"
+	if gold < int(balance.towers[selected].cost):
+		return "game.not_enough_gold"
+	return ""
+
+func _place_tower(cell: Vector2i) -> void:
+	var error := placement_error(cell)
+	if error != "":
+		hint = error
+		hint_args = {"name_key": balance.towers[selected].name_key}
+		return
 	var spec: Dictionary = balance.towers[selected]
 	if gold < int(spec.cost):
 		hint = "game.not_enough_gold"
@@ -234,7 +243,7 @@ func _place_tower(cell: Vector2i) -> void:
 		return
 	_play_sound("res://assets/audio/build.wav")
 	gold -= int(spec.cost)
-	towers.append({"cell": cell, "kind": selected, "cooldown": 0.0, "aim": Vector2.UP})
+	towers.append({"cell": cell, "kind": selected, "cooldown": 0.0, "aim": Vector2.UP, "level": 1, "total_invested": int(spec.cost)})
 	hint = "game.built"
 	hint_args = {"name_key": spec.name_key, "range": spec.range}
 
@@ -282,6 +291,10 @@ func _tick(delta: float) -> void:
 		enemy.slow_time = maxf(0.0, enemy.slow_time - delta)
 		if enemy.slow_time <= 0:
 			enemy.slow = 1.0
+		if enemy.get("poison_time", 0.0) > 0:
+			var poison_delta := minf(delta, enemy.poison_time)
+			enemy.hp -= poison_delta * float(enemy.poison_dps)
+			enemy.poison_time = maxf(0.0, enemy.poison_time - delta)
 		enemy.progress += delta * enemy.speed * enemy.slow
 	TowerSystem.fire(self, delta)
 	for i in range(enemies.size() - 1, -1, -1):
@@ -320,6 +333,7 @@ func _refresh_locale() -> void:
 	locale_refresh_pending = false
 	if not is_inside_tree():
 		return
+	var inspection: int = shop.inspected if is_instance_valid(shop) and shop.info.visible else -1
 	for child in get_children():
 		if child is Control:
 			remove_child(child)
@@ -327,4 +341,6 @@ func _refresh_locale() -> void:
 	tower_buttons.clear()
 	_build_ui()
 	seed_input.text = str(seed_value)
+	if inspection >= 0:
+		shop.show_details(inspection)
 	_refresh_ui()

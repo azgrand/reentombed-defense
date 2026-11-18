@@ -123,3 +123,36 @@ msgstr "Escarcha"
 msgid "tower.frost.description"
 msgstr "Ralentiza al enemigo."
 
+msgid "shop.support"
+msgstr "Apoyo"
+
+msgid "shop.details"
+msgstr "{name}\nCoste: {cost} · Daño: {damage}\nAlcance: {range} · Recarga: {cooldown}s\n{dps}\n{description}"
+
+msgid "shop.dps"
+msgstr "DPS directo: {value}"
+
+msgid "tower.venom.name"
+msgstr "Veneno"
+
+msgid "tower.venom.description"
+msgstr "Veneno: 9 daño/s durante 3s. Renueva duración sin acumular daño."
+
+msgid "tower.storm.name"
+msgstr "Tormenta"
+
+msgid "tower.storm.description"
+msgstr "Hasta 3 saltos a 1,8 celdas. Cada salto conserva el 70% del daño."
+
+msgid "tower.pierce.name"
+msgstr "Balista"
+
+msgid "tower.pierce.description"
+msgstr "Atraviesa hasta 3 enemigos alineados."
+
+msgid "tower.banner.name"
+msgstr "Estandarte"
+
+msgid "tower.banner.description"
+msgstr "Aura: aliados disparan un 15% más rápido. Solo se aplica la más fuerte."
+

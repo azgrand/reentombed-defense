@@ -8,10 +8,18 @@ root = Path(__file__).resolve().parents[1]
 balance = json.loads((root / "data/balance.json").read_text())
 for key in ("starting_gold", "starting_lives", "waves", "wave_bonus"):
     assert isinstance(balance[key], int) and balance[key] > 0, key
-assert len(balance["towers"]) >= 3
+assert len(balance["towers"]) >= 7
 assert len({tower["id"] for tower in balance["towers"]}) == len(balance["towers"])
 for tower in balance["towers"]:
-    for key in ("cost", "damage", "range", "cooldown"):
+    for key in ("cost", "range"):
+        assert tower[key] > 0, (tower["id"], key)
+    assert tower["behavior"] in {"single", "splash", "slow", "poison", "chain", "pierce", "aura"}
+    if tower["behavior"] == "aura":
+        assert tower["damage"] == tower["cooldown"] == 0
+        assert 0 < tower["aura_bonus"] < 1
+    else:
+        assert tower["damage"] > 0 and tower["cooldown"] > 0
+    for key in {"poison": ["poison_dps", "poison_duration"], "chain": ["chain_jumps", "chain_radius", "chain_decay"], "pierce": ["pierce_hits", "pierce_tolerance"]}.get(tower["behavior"], []):
         assert tower[key] > 0, (tower["id"], key)
     assert 0 < tower["slow"] <= 1
     assert tower["splash"] >= 0

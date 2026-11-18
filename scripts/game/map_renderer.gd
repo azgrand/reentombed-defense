@@ -78,24 +78,20 @@ func _draw() -> void:
 		draw_line(center - direction * 3 - side * 3, center + direction * 2, Color(1, 0.88, 0.66, 0.5), 1)
 	var hover := Vector2i(((get_global_mouse_position() - ORIGIN) / TILE).floor())
 	if hover.x >= 0 and hover.y >= 0 and hover.x < Mapper.WIDTH and hover.y < Mapper.HEIGHT:
-		if map_data.cells[hover.y][hover.x] == Mapper.PAD:
-			var radius: float = float(balance.towers[selected].range) * TILE
-			draw_circle(_center(hover), radius, Color(0.6, 0.95, 0.8, 0.10))
-			draw_arc(_center(hover), radius, 0, TAU, 64, Color(0.6, 0.95, 0.8, 0.6), 1)
-			var occupied := false
-			for tower in towers:
-				if tower.cell == hover:
-					occupied = true
-			if not occupied and not ended:
-				_sprite(Art.TOWERS[balance.towers[selected].id], _center(hover) + Vector2(0, 10), 42, 0, 1, Color(1, 1, 1, 0.5))
+		var valid: bool = game.placement_error(hover) == ""
+		var tint := Color("67e8a0") if valid else Color("f16f6f")
+		var radius: float = float(balance.towers[selected].range) * TILE
+		draw_circle(_center(hover), radius, Color(tint, 0.10))
+		draw_arc(_center(hover), radius, 0, TAU, 64, Color(tint, 0.65), 1)
+		_sprite(Art.tower_texture(balance.towers[selected].id), _center(hover) + Vector2(0, 10), 42, 0, Art.tower_frames(balance.towers[selected].id), Color(tint, 0.5))
 	for tower in towers:
 		var center := _center(tower.cell)
 		draw_circle(center + Vector2(0, 6), 10, Color(0, 0, 0, 0.22))
-		_sprite(Art.TOWERS[balance.towers[tower.kind].id], center + Vector2(0, 10), 42)
+		_sprite(Art.tower_texture(balance.towers[tower.kind].id), center + Vector2(0, 10), 42, frame if balance.towers[tower.kind].id == "banner" else 0, Art.tower_frames(balance.towers[tower.kind].id))
 	for enemy in enemies:
 		var center := _enemy_position(enemy)
 		var texture: Texture2D = Art.ARMORED if enemy.armored else Art.ENEMIES[(wave - 1) % Art.ENEMIES.size()]
-		var tint := Color("8ab4ff") if enemy.slow < 1 else Color.WHITE
+		var tint := Color("8ab4ff") if enemy.slow < 1 else (Color("a9e96d") if enemy.get("poison_time", 0.0) > 0 else Color.WHITE)
 		draw_circle(center + Vector2(0, 6), 8, Color(0, 0, 0, 0.25))
 		_sprite(texture, center + Vector2(0, 8), 25 if enemy.armored else 19, (int(animation_time * 8) + int(enemy.id)) % 4, 4, tint)
 		draw_rect(Rect2(center + Vector2(-10, -20), Vector2(20, 3)), Color("1a1f2a"))
@@ -103,6 +99,9 @@ func _draw() -> void:
 	for beam in beams:
 		var progress := clampf(1.0 - float(beam.ttl) / 0.18, 0.0, 1.0)
 		var position_value: Vector2 = beam.from.lerp(beam.to, progress)
-		_sprite(Art.PROJECTILES[balance.towers[beam.kind].id], position_value, 10)
+		if balance.towers[beam.kind].behavior == "chain":
+			draw_line(beam.from, beam.to, beam.color, 3)
+		else:
+			_sprite(Art.PROJECTILES[balance.towers[beam.kind].id], position_value, 10)
 		draw_arc(beam.to, 4 + progress * 9, 0, TAU, 16, Color(beam.color, 1.0 - progress), 2)
 

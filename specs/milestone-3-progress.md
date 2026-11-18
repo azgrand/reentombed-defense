@@ -30,3 +30,11 @@ Archivos nuevos: `scripts/services/settings_store.gd` (preferencias nativas Conf
 Resultados: 40 claves completas con paridad de placeholders; preferencias/persistencia/defaults corruptos, menú, pausa sin avance de simulación y cambio ES/EN con partida abierta: OK. Suite de 1000 semillas y combate: cero fallos. Arranque real del menú y capturas revisadas: `menu.png`, `settings.png` (ES), `game.png` (EN). Se corrigió la reconstrucción de controles durante notificación de traducción usando actualización diferida. La confirmación protege la vuelta al menú; Esc en ajustes regresa al contexto anterior. Sin nuevos assets, castillo verde original para portada.
 
 Smoke: F5 → ajustes → alternar idioma/sonido → Jugar → P → ajustes → volver → continuar; probar derrota/victoria y acciones de repetir/nuevo/menú. Preparada para D. La tienda sigue siendo la de tres tarjetas hasta la fase siguiente. Pendientes: escuchar audio en dispositivo real y revisión completa de dificultad.
+
+## Fase D — UI-01 / TWR-01 / QOL-01
+
+Archivos: balance y schema con siete comportamientos y parámetros; `tower_system.gd` dispatch de ataques/efectos, aura dinámica más fuerte; `tower_shop.gd` GridContainer dos columnas con hover/foco y detalles; `main.gd` valida compras con el mismo contrato de previsualización; `map_renderer.gd` ghosts positivos/negativos, veneno visible y rayos encadenados; `art.gd` mappings explícitos; catálogos/validador y pruebas ampliados. Captura revisada `shop.png` (EN): siete tarjetas y panel dentro del viewport.
+
+Assets sin fallback: Veneno→poison_wizard, Tormenta→lightning_tower, Balista→crossbow, Estandarte→normal_tower_01_green (cuatro frames). Proyectiles correspondientes para atacantes; Estandarte no dispara.
+
+Pruebas: suite de 1000 semillas/combate generalizada a siete torres, cero fallos. Test específico comprueba poison refresh/no-stack, expiración con delta grande, pausa, recompensa única, cadena de cuatro impactos con caída 70%, perforación de tres, aura strongest-only y exclusión propia. Navegación e idioma continúan OK. Validador: 51 claves, referencias, balance y parámetros. Smoke: teclas 1–7, comprar cada tipo, hover/foco con poco oro; revisar efectos con semilla 42. Preparada para E. No se ha cambiado economía ni precios base.

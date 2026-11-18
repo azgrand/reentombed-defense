@@ -16,6 +16,8 @@ func run() -> void:
 	elif mode not in ["menu", "settings"]:
 		scene.set_process(false)
 		scene._new_map(42)
+		if mode == "shop":
+			scene.shop.show_details(3)
 	Input.warp_mouse(Vector2(1250, 60))
 	await process_frame
 	await RenderingServer.frame_post_draw

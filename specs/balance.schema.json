@@ -28,7 +28,7 @@
     },
     "towers": {
       "type": "array",
-      "minItems": 3,
+      "minItems": 7,
       "items": {
         "type": "object",
         "required": [
@@ -41,7 +41,8 @@
           "splash",
           "slow",
           "name_key",
-          "description_key"
+          "description_key",
+          "behavior"
         ],
         "additionalProperties": false,
         "properties": {
@@ -80,8 +81,131 @@
           },
           "description_key": {
             "type": "string"
+          },
+          "behavior": {
+            "enum": [
+              "single",
+              "splash",
+              "slow",
+              "poison",
+              "chain",
+              "pierce",
+              "aura"
+            ]
+          },
+          "poison_dps": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "poison_duration": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "chain_jumps": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "chain_radius": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "chain_decay": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "pierce_hits": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "pierce_tolerance": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "aura_bonus": {
+            "type": "number",
+            "exclusiveMinimum": 0
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "behavior": {
+                  "const": "aura"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "damage": {
+                  "const": 0
+                },
+                "cooldown": {
+                  "const": 0
+                }
+              },
+              "required": [
+                "aura_bonus"
+              ]
+            },
+            "else": {
+              "properties": {
+                "damage": {
+                  "exclusiveMinimum": 0
+                },
+                "cooldown": {
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "behavior": {
+                  "const": "poison"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "poison_dps",
+                "poison_duration"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "behavior": {
+                  "const": "chain"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "chain_jumps",
+                "chain_radius",
+                "chain_decay"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "behavior": {
+                  "const": "pierce"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "pierce_hits",
+                "pierce_tolerance"
+              ]
+            }
+          }
+        ]
       }
     }
   }

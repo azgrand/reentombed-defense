@@ -106,7 +106,7 @@ func _run() -> void:
 	game._tick(0.01)
 	check(game.ended and not game.active and game.lives == 20, "Victory not triggered")
 	# Exercise each weapon against an enemy placed beside a construction pad.
-	for kind in range(3):
+	for kind in range(game.balance.towers.size()):
 		game._new_map(42)
 		game.selected = kind
 		game._place_tower(pad)
@@ -123,7 +123,10 @@ func _run() -> void:
 			game._spawn_enemy()
 			game.enemies[1].progress = float(route_index)
 		game._tick(0.001)
-		check(game.enemies[0].hp < health, "Weapon did not hit: %d" % kind)
+		if game.balance.towers[kind].behavior == "aura":
+			check(game.enemies[0].hp == health, "Support tower attacked")
+		else:
+			check(game.enemies[0].hp < health, "Weapon did not hit: %d" % kind)
 		if kind == 1:
 			check(game.enemies[1].hp < health, "Splash damage missing")
 		if kind == 2:
