@@ -46,3 +46,124 @@ Archivos: `balance.json` y schema contienen progresión autoritativa; `tower_sys
 Pruebas: cero fallos en todas las fórmulas, inversión acumulada, máximo, oro insuficiente, venta pausada rechazada, ventas repetidas/referencias obsoletas, ausencia de arbitraje, mejoras durante oleadas, limpieza al reset y geometría intacta. Pruebas de efectos y navegación siguen pasando. Captura de nivel 4 revisada; se reforzó fondo del panel para lectura sobre el mapa. No cambian sprites ni escala; nivel 4 usa pips dorados.
 
 Smoke: semilla 42, construir Aguja, seleccionarla, mejorar con oro de oleadas y vender; Estandarte nivel 4 muestra aura 30%. Las operaciones no se permiten en pausa/resultado. Preparada para F. No se ha reajustado balance sin evidencia de partidas completas.
+
+## Fase F — QOL-02 / QOL-03 y cierre de implementación
+
+Archivos: `main.gd` calcula forecast desde contador real y actualiza HUD por fingerprint; `map_renderer.gd` limita barras a [0,1]; `test_forecast_placement.gd` verifica pronóstico, geometría/compra y tienda; pruebas de navegación y comportamientos amplían confirmación, liberación y aura dinámica. `tools/verify_project.py` ejecuta todos los controles y detecta errores de motor aunque retorne 0. `tools/balance_review.gd` registra una política de compra reproducible. Capturas/tooling actualizados; README, specs funcionales/arquitectura/aceptación, assets y validation reflejan v0.3.
+
+Resultado final: **All project checks passed**, salida 0 en Godot 4.6. 65 traducciones; todos los tests dedicados y 1000 mapas pasan. Revisadas imágenes finales de menú, ajustes ES, hover EN, nivel 4, combate y escalado 1024×640; semillas de mapas 0–17,42,2026. La simulación de compra completa las diez oleadas en 0/42/2026 con 20 vidas, 19 torres y 140 oro. No cambia el balance base. No hay nuevos assets ni fallback utilizado.
+
+Smoke recomendado: F5, cambiar ES/EN, jugar semilla 42, seleccionar 1–7 y construir; mejorar/vender; P/Esc, ajustes y confirmación de regreso; repetir con 2026. Riesgos y aceptación pendiente: audio real, gamepad, campaña humana y plantillas de exportación no probados. Implementación A–F terminada; **no se marca la aceptación interactiva total como completada**. No se hace push ni publicación. Se conserva sin tocar el master spec no versionado del usuario.
+
+## Commits y archivos por fase
+
+### A: `48c1879`
+
+- `README.md`
+- `scripts/game/art.gd`
+- `scripts/game/main.gd`
+- `scripts/game/map_renderer.gd`
+- `scripts/game/tower_system.gd`
+- `specs/balance.schema.json`
+- `specs/milestone-3-progress.md`
+- `tools/check_project.py`
+
+### B: `0f4a62c`
+
+- `scripts/core/entombed_mapper.gd`
+- `scripts/core/map_quality.gd`
+- `scripts/game/main.gd`
+- `scripts/game/map_layer.gd`
+- `scripts/game/map_renderer.gd`
+- `scripts/game/map_renderer.gd.uid`
+- `scripts/game/tower_system.gd.uid`
+- `specs/map-generator.md`
+- `specs/milestone-3-progress.md`
+- `specs/previews/milestone-3/contact-sheet.png`
+- `specs/previews/milestone-3/map-0.png`
+- `specs/previews/milestone-3/map-1.png`
+- `specs/previews/milestone-3/map-10.png`
+- `specs/previews/milestone-3/map-11.png`
+- `specs/previews/milestone-3/map-12.png`
+- `specs/previews/milestone-3/map-13.png`
+- `specs/previews/milestone-3/map-14.png`
+- `specs/previews/milestone-3/map-15.png`
+- `specs/previews/milestone-3/map-16.png`
+- `specs/previews/milestone-3/map-17.png`
+- `specs/previews/milestone-3/map-2.png`
+- `specs/previews/milestone-3/map-2026.png`
+- `specs/previews/milestone-3/map-3.png`
+- `specs/previews/milestone-3/map-4.png`
+- `specs/previews/milestone-3/map-42.png`
+- `specs/previews/milestone-3/map-5.png`
+- `specs/previews/milestone-3/map-6.png`
+- `specs/previews/milestone-3/map-7.png`
+- `specs/previews/milestone-3/map-8.png`
+- `specs/previews/milestone-3/map-9.png`
+- `tests/run_tests.gd`
+- `tools/capture_preview.gd`
+
+### C: `198e626`
+
+- `.gitignore`
+- `data/balance.json`
+- `localization/README.md`
+- `localization/en.po`
+- `localization/es.po`
+- `project.godot`
+- `scenes/main_menu.tscn`
+- `scripts/core/map_quality.gd.uid`
+- `scripts/game/main.gd`
+- `scripts/game/map_layer.gd.uid`
+- `scripts/services/settings_store.gd`
+- `scripts/services/settings_store.gd.uid`
+- `scripts/ui/main_menu.gd`
+- `scripts/ui/main_menu.gd.uid`
+- `scripts/ui/navigation.gd`
+- `scripts/ui/navigation.gd.uid`
+- `scripts/ui/settings_panel.gd`
+- `scripts/ui/settings_panel.gd.uid`
+- `specs/balance.schema.json`
+- `specs/milestone-3-progress.md`
+- `specs/previews/milestone-3/game.png`
+- `specs/previews/milestone-3/menu.png`
+- `specs/previews/milestone-3/settings.png`
+- `tests/test_navigation.gd`
+- `tests/test_preferences.gd`
+- `tools/capture_ui.gd`
+- `tools/check_localization.py`
+- `tools/check_project.py`
+
+### D: `5a834f1`
+
+- `data/balance.json`
+- `localization/en.po`
+- `localization/es.po`
+- `scripts/game/art.gd`
+- `scripts/game/main.gd`
+- `scripts/game/map_renderer.gd`
+- `scripts/game/tower_system.gd`
+- `scripts/ui/tower_shop.gd`
+- `specs/balance.schema.json`
+- `specs/milestone-3-progress.md`
+- `specs/previews/milestone-3/shop.png`
+- `tests/run_tests.gd`
+- `tests/test_tower_behaviors.gd`
+- `tools/capture_ui.gd`
+- `tools/check_project.py`
+
+### E: `5a52eb5`
+
+- `data/balance.json`
+- `localization/en.po`
+- `localization/es.po`
+- `scripts/game/main.gd`
+- `scripts/game/map_renderer.gd`
+- `scripts/game/tower_system.gd`
+- `scripts/ui/tower_details.gd`
+- `specs/balance.schema.json`
+- `specs/milestone-3-progress.md`
+- `specs/previews/milestone-3/upgrade.png`
+- `tests/test_upgrades.gd`
+- `tools/capture_ui.gd`
+- `tools/check_project.py`

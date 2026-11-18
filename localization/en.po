@@ -189,3 +189,12 @@ msgstr "Support · Aura +{aura}%\nRange {range}"
 msgid "upgrade.support_next"
 msgstr "Next: aura +{aura}%, range {range}"
 
+msgid "game.forecast"
+msgstr "Next {number}: {count} enemies / {heavy} heavy\nHeavy: more health, slower movement"
+
+msgid "game.no_more_waves"
+msgstr "No waves remaining."
+
+msgid "game.place_here"
+msgstr "Valid pad: click to build."
+

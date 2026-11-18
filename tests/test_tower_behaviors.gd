@@ -86,8 +86,14 @@ func run() -> void:
 	game.towers.append({"cell": Vector2i(6, 5), "kind": banner_kind, "level": 1})
 	game.towers.append({"cell": Vector2i(5, 6), "kind": banner_kind, "level": 1})
 	check(is_equal_approx(System.aura_bonus(game, game.towers[0]), 0.15), "Aura stacked")
-	game.towers.remove_at(2)
-	game.towers.remove_at(0)
+	game.towers[1].level = 4
+	game.towers[2].level = 2
+	check(is_equal_approx(System.aura_bonus(game, game.towers[0]), 0.30), "Upgraded aura not applied dynamically")
+	game.towers.remove_at(1)
+	check(is_equal_approx(System.aura_bonus(game, game.towers[0]), 0.20), "Sold strongest aura remains cached")
+	game.towers.remove_at(1)
+	game.towers.clear()
+	game.towers.append({"cell": Vector2i(6, 5), "kind": banner_kind, "level": 4})
 	check(System.aura_bonus(game, game.towers[0]) == 0, "Aura buffs itself")
 	game.queue_free()
 	await process_frame

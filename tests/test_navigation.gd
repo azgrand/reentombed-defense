@@ -13,6 +13,15 @@ func run() -> void:
 	var timer: float = game.spawn_clock
 	game._tick(5.0)
 	assert(game.enemies == before and game.spawn_clock == timer)
+	game.navigation._confirm_main_menu()
+	var confirmation: ConfirmationDialog
+	for child in game.navigation.screen.get_children():
+		if child is ConfirmationDialog:
+			confirmation = child
+	assert(confirmation != null and game.paused)
+	confirmation.canceled.emit()
+	await process_frame
+	assert(game.paused and game.navigation.page == "pause")
 	game.navigation.show_page("settings")
 	var prefs = root.get_node("Preferences")
 	var old_locale: String = prefs.values.language
@@ -30,7 +39,12 @@ func run() -> void:
 	assert(not game.paused and game.navigation.page == "")
 	TranslationServer.set_locale(old_locale)
 	await process_frame
-	game.queue_free()
+	current_scene = game
+	game.navigation._main_menu()
+	await process_frame
+	await process_frame
+	assert(not is_instance_valid(game) and current_scene.name == "MainMenu")
+	current_scene.queue_free()
 	await process_frame
 	print("Navigation, live locale and pause: OK")
 	quit()

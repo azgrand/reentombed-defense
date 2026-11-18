@@ -34,6 +34,10 @@ for source in list(root.rglob("*.gd")) + [root / "project.godot", root / "scenes
 for name in ("build", "wave"):
     with wave.open(str(root / "assets/audio" / f"{name}.wav")) as audio:
         assert audio.getnframes() > 0 and audio.getnchannels() == 1
-from check_localization import check
+from check_localization import check, catalogue
+english = catalogue("en")
+for tower in balance["towers"]:
+    assert tower["name_key"] in english and tower["description_key"] in english
+    assert len(tower["id"]) > 0
 check()
 print("OK: balance, resource references, audio")

@@ -119,7 +119,7 @@ func _run() -> void:
 				break
 		game.enemies[0].progress = float(route_index)
 		var health: float = game.enemies[0].hp
-		if kind == 1:
+		if game.balance.towers[kind].behavior == "splash":
 			game._spawn_enemy()
 			game.enemies[1].progress = float(route_index)
 		game._tick(0.001)
@@ -127,9 +127,9 @@ func _run() -> void:
 			check(game.enemies[0].hp == health, "Support tower attacked")
 		else:
 			check(game.enemies[0].hp < health, "Weapon did not hit: %d" % kind)
-		if kind == 1:
+		if game.balance.towers[kind].behavior == "splash":
 			check(game.enemies[1].hp < health, "Splash damage missing")
-		if kind == 2:
+		if game.balance.towers[kind].behavior == "slow":
 			check(game.enemies[0].slow < 1.0, "Slow effect missing")
 	game.sound.stop()
 	game.queue_free()

@@ -100,7 +100,7 @@ func _draw() -> void:
 		draw_circle(center + Vector2(0, 6), 8, Color(0, 0, 0, 0.25))
 		_sprite(texture, center + Vector2(0, 8), 25 if enemy.armored else 19, (int(animation_time * 8) + int(enemy.id)) % 4, 4, tint)
 		draw_rect(Rect2(center + Vector2(-10, -20), Vector2(20, 3)), Color("1a1f2a"))
-		draw_rect(Rect2(center + Vector2(-10, -20), Vector2(20 * maxf(0, enemy.hp / enemy.max_hp), 3)), Color("a5ed86"))
+		draw_rect(Rect2(center + Vector2(-10, -20), Vector2(20 * clampf(enemy.hp / enemy.max_hp, 0.0, 1.0), 3)), Color("a5ed86"))
 	for beam in beams:
 		var progress := clampf(1.0 - float(beam.ttl) / 0.18, 0.0, 1.0)
 		var position_value: Vector2 = beam.from.lerp(beam.to, progress)

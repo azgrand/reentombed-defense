@@ -18,3 +18,7 @@ Los demás sprites del paquete quedan disponibles para futuras ampliaciones. No 
 ## Assets originales del prototipo
 
 `icons/icon.svg` es un vector original; `audio/build.wav` y `audio/wave.wav` son tonos sintetizados mediante `tools/generate_audio.py`. Barras de vida, indicadores de alcance e impactos se dibujan con CanvasItem. La tipografía usa la fuente por defecto de Godot.
+
+## Extensión v0.3
+
+Veneno usa poison_wizard, Tormenta lightning_tower, Balista crossbow y Estandarte normal_tower_01_green (hoja de cuatro frames). Los tres atacantes usan sus proyectiles originales; Estandarte no dispara. No hay sprites inventados ni nuevos recursos descargados. La portada usa el castillo verde. Mappings en art.gd y fallback explícito a archer para un ID de torre desconocido; la validación exige mapping para cada definición actual.

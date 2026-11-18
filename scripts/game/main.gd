@@ -39,6 +39,9 @@ var shop: VBoxContainer
 const TowerDetails = preload("res://scripts/ui/tower_details.gd")
 var details: PanelContainer
 var selected_tower: Dictionary = {}
+var forecast: Label
+var ui_fingerprint := ""
+var hover_status := ""
 var hint := "game.instructions"
 var hint_args := {}
 const Navigation = preload("res://scripts/ui/navigation.gd")
@@ -97,6 +100,7 @@ func _label(text_value: String, position_value: Vector2, size_value: Vector2, fo
 	return label
 
 func _build_ui() -> void:
+	ui_fingerprint = ""
 	_label("REENTOMBED / DEFENSE", Vector2(28, 18), Vector2(800, 42), 32)
 	_label(tr("game.subtitle"), Vector2(30, 65), Vector2(850, 28), 16)
 	_label(tr("shop.title"), Vector2(928, 110), Vector2(300, 35), 25)
@@ -106,6 +110,7 @@ func _build_ui() -> void:
 	shop.size = Vector2(320, 260)
 	add_child(shop)
 	tower_buttons.assign(shop.buttons)
+	forecast = _label("", Vector2(928, 400), Vector2(320, 32), 13)
 	stats = _label("", Vector2(928, 435), Vector2(320, 90), 20)
 	wave_button = _button(tr("game.start_wave"), Vector2(928, 540), Vector2(320, 44), _start_wave)
 	_button(tr("game.pause"), Vector2(928, 594), Vector2(320, 38), _toggle_pause)
@@ -180,6 +185,12 @@ func _toggle_pause() -> void:
 	_refresh_ui()
 
 func _refresh_ui() -> void:
+	var fingerprint := str([gold, lives, wave, active, ended, paused, seed_value, selected, hint, hint_args, hover_status, selected_tower.get("level", 0), selected_tower.get("total_invested", 0), towers.size(), next_enemy_id, TranslationServer.get_locale()])
+	if fingerprint == ui_fingerprint:
+		return
+	ui_fingerprint = fingerprint
+	var next := next_wave_forecast()
+	forecast.text = "" if active else (tr("game.forecast").format(next) if next.number > 0 else tr("game.no_more_waves"))
 	map_info.text = tr("game.diagnostics").format({"seed": seed_value, "length": map_data.route.size()})
 	stats.text = tr("game.stats").format({"gold": gold, "lives": lives, "wave": wave, "total": balance.waves})
 	wave_button.disabled = active or ended
@@ -188,7 +199,9 @@ func _refresh_ui() -> void:
 	var arguments := hint_args.duplicate()
 	if arguments.has("name_key"):
 		arguments.name = tr(arguments.name_key)
-	message.text = tr("game.paused") if paused else tr(hint).format(arguments)
+	if hover_status != "":
+		arguments.name = tr(balance.towers[selected].name_key)
+	message.text = tr("game.paused") if paused else tr(hover_status if hover_status != "" else hint).format(arguments)
 	if details != null and not selected_tower.is_empty():
 		details.refresh()
 
@@ -247,7 +260,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func placement_error(cell: Vector2i) -> String:
 	if paused or ended:
-		return "game.paused" if paused else "game.defeat"
+		return "game.paused" if paused else ("game.victory" if lives > 0 else "game.defeat")
 	if cell.x < 0 or cell.y < 0 or cell.x >= Mapper.WIDTH or cell.y >= Mapper.HEIGHT:
 		return "game.blocked"
 	if map_data.cells[cell.y][cell.x] != Mapper.PAD:
@@ -300,6 +313,12 @@ func _process(delta: float) -> void:
 		_tick(delta)
 		if ended and navigation != null:
 			navigation.show_page("result")
+	var cell := Vector2i(((get_global_mouse_position() - ORIGIN) / TILE).floor())
+	hover_status = ""
+	if cell.x >= 0 and cell.y >= 0 and cell.x < Mapper.WIDTH and cell.y < Mapper.HEIGHT and selected_tower.is_empty():
+		hover_status = placement_error(cell)
+		if hover_status == "":
+			hover_status = "game.place_here"
 	_refresh_ui()
 	renderer.queue_redraw()
 
@@ -404,3 +423,14 @@ func _sell_selected() -> int:
 	_refresh_ui()
 	renderer.queue_redraw()
 	return refund
+
+func next_wave_forecast() -> Dictionary:
+	var number := wave + 1
+	if number > int(balance.waves):
+		return {"number": 0, "count": 0, "heavy": 0}
+	var count := 6 + number * 2
+	var heavy := 0
+	for index in range(next_enemy_id, next_enemy_id + count):
+		if index % 5 == 4:
+			heavy += 1
+	return {"number": number, "count": count, "heavy": heavy}

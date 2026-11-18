@@ -189,3 +189,12 @@ msgstr "Apoyo · Aura +{aura}%\nAlcance {range}"
 msgid "upgrade.support_next"
 msgstr "Siguiente: aura +{aura}%, alcance {range}"
 
+msgid "game.forecast"
+msgstr "Próxima {number}: {count} enemigos / {heavy} grandes\nGrandes: más vida, menos velocidad"
+
+msgid "game.no_more_waves"
+msgstr "No quedan oleadas."
+
+msgid "game.place_here"
+msgstr "Plataforma válida: clic para construir."
+
