@@ -34,7 +34,10 @@ var message: Label
 var seed_input: LineEdit
 var wave_button: Button
 var tower_buttons: Array[Button] = []
-var hint := "Construye sobre las plataformas marcadas con +."
+var hint := "game.instructions"
+var hint_args := {}
+const Navigation = preload("res://scripts/ui/navigation.gd")
+var navigation: CanvasLayer
 
 func _ready() -> void:
 	balance = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
@@ -47,9 +50,12 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	map_rng.randomize()
 	_random_map()
+	navigation = Navigation.new()
+	navigation.game = self
+	add_child(navigation)
 
 func _play_sound(path: String) -> void:
-	if not audio_enabled or DisplayServer.get_name() == "headless":
+	if not Preferences.values.sound or not audio_enabled or DisplayServer.get_name() == "headless":
 		return
 	sound.stream = load(path)
 	sound.play()
@@ -87,12 +93,11 @@ func _label(text_value: String, position_value: Vector2, size_value: Vector2, fo
 
 func _build_ui() -> void:
 	_label("REENTOMBED / DEFENSE", Vector2(28, 18), Vector2(800, 42), 32)
-	_label("EL BOSQUE DEL SELLO    /    Cada expedición abre un nuevo laberinto", Vector2(30, 65), Vector2(850, 28), 16)
-	_label("ARSENAL", Vector2(928, 110), Vector2(300, 35), 25)
+	_label(tr("game.subtitle"), Vector2(30, 65), Vector2(850, 28), 16)
+	_label(tr("shop.title"), Vector2(928, 110), Vector2(300, 35), 25)
 	for i in range(balance.towers.size()):
 		var spec: Dictionary = balance.towers[i]
-		var text_value := "%d   %s · %d oro
-Daño %d / Alcance %.1f" % [i + 1, spec.name, spec.cost, spec.damage, spec.range]
+		var text_value := tr("shop.card").format({"shortcut": i + 1, "name": tr(spec.name_key), "cost": spec.cost, "damage": spec.damage, "range": spec.range})
 		var button := _button(text_value, Vector2(928, 162 + i * 84), Vector2(320, 72), _select.bind(i))
 		button.icon = Art.TOWERS[spec.id]
 		button.expand_icon = true
@@ -100,16 +105,16 @@ Daño %d / Alcance %.1f" % [i + 1, spec.name, spec.cost, spec.damage, spec.range
 		button.add_theme_constant_override("h_separation", 14)
 		tower_buttons.append(button)
 	stats = _label("", Vector2(928, 435), Vector2(320, 90), 20)
-	wave_button = _button("Iniciar oleada [Espacio]", Vector2(928, 540), Vector2(320, 44), _start_wave)
-	_button("Pausa / Continuar [P]", Vector2(928, 594), Vector2(320, 38), _toggle_pause)
+	wave_button = _button(tr("game.start_wave"), Vector2(928, 540), Vector2(320, 44), _start_wave)
+	_button(tr("game.pause"), Vector2(928, 594), Vector2(320, 38), _toggle_pause)
 	map_info = _label("", Vector2(30, 744), Vector2(850, 24), 14)
 	seed_input = LineEdit.new()
 	seed_input.position = Vector2(928, 654)
 	seed_input.size = Vector2(146, 38)
-	seed_input.placeholder_text = "Semilla entera"
+	seed_input.placeholder_text = tr("game.seed")
 	add_child(seed_input)
-	_button("Repetir semilla", Vector2(1084, 654), Vector2(164, 38), _restart_seed)
-	_button("Nuevo mapa", Vector2(928, 704), Vector2(320, 38), _random_map)
+	_button(tr("game.retry"), Vector2(1084, 654), Vector2(164, 38), _restart_seed)
+	_button(tr("game.new_map"), Vector2(928, 704), Vector2(320, 38), _random_map)
 	message = _label("", Vector2(28, 772), Vector2(1220, 36), 17)
 
 func _new_map(value: int) -> void:
@@ -130,7 +135,8 @@ func _new_map(value: int) -> void:
 	paused = false
 	next_enemy_id = 0
 	seed_input.text = str(value)
-	hint = "Elige torre (1–3) y pulsa una plataforma +. Clic derecho: vender al 65 %."
+	hint = "game.instructions"
+	hint_args = {}
 	_refresh_ui()
 	renderer.queue_redraw()
 
@@ -144,7 +150,7 @@ func _restart_seed() -> void:
 	if seed_input.text.is_valid_int():
 		_new_map(seed_input.text.to_int())
 	else:
-		hint = "Introduce una semilla entera válida."
+		hint = "game.bad_seed"
 
 func _select(index: int) -> void:
 	if index < 0 or index >= balance.towers.size():
@@ -155,17 +161,23 @@ func _select(index: int) -> void:
 func _toggle_pause() -> void:
 	if not ended:
 		paused = not paused
+		if navigation != null:
+			if paused:
+				navigation.show_page("pause")
+			else:
+				navigation.clear()
 	_refresh_ui()
 
 func _refresh_ui() -> void:
-	map_info.text = "SEMILLA  %d     /     RUTA  %d celdas     /     Rojo: entrada · Azul: castillo" % [seed_value, map_data.route.size()]
-	stats.text = "ORO   %d
-SELLO   %d vidas
-OLEADA   %d / %d" % [gold, lives, wave, balance.waves]
+	map_info.text = tr("game.diagnostics").format({"seed": seed_value, "length": map_data.route.size()})
+	stats.text = tr("game.stats").format({"gold": gold, "lives": lives, "wave": wave, "total": balance.waves})
 	wave_button.disabled = active or ended
 	for i in range(tower_buttons.size()):
 		tower_buttons[i].modulate = Color("67e8c4") if i == selected else Color.WHITE
-	message.text = "PAUSA · Pulsa P para continuar" if paused else hint
+	var arguments := hint_args.duplicate()
+	if arguments.has("name_key"):
+		arguments.name = tr(arguments.name_key)
+	message.text = tr("game.paused") if paused else tr(hint).format(arguments)
 
 func _start_wave() -> void:
 	if active or ended or paused:
@@ -175,7 +187,8 @@ func _start_wave() -> void:
 	remaining = 6 + wave * 2
 	spawn_clock = 0.0
 	active = true
-	hint = "Oleada %d en marcha. Puedes seguir construyendo." % wave
+	hint = "game.wave_started"
+	hint_args = {"wave": wave}
 	_refresh_ui()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -186,7 +199,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_select(event.keycode - KEY_1)
 		match event.keycode:
 			KEY_SPACE: _start_wave()
-			KEY_P: _toggle_pause()
+			KEY_P, KEY_ESCAPE: _toggle_pause()
 	if event is InputEventMouseButton and event.pressed:
 		if paused or ended:
 			return
@@ -208,20 +221,22 @@ func _place_tower(cell: Vector2i) -> void:
 	if cell.x < 0 or cell.y < 0 or cell.x >= Mapper.WIDTH or cell.y >= Mapper.HEIGHT:
 		return
 	if map_data.cells[cell.y][cell.x] != Mapper.PAD:
-		hint = "Solo se puede construir en plataformas +."
+		hint = "game.blocked"
 		return
 	for tower in towers:
 		if tower.cell == cell:
-			hint = "Esta plataforma ya tiene una torre."
+			hint = "game.occupied"
 			return
 	var spec: Dictionary = balance.towers[selected]
 	if gold < int(spec.cost):
-		hint = "Oro insuficiente para %s." % spec.name
+		hint = "game.not_enough_gold"
+		hint_args = {"name_key": spec.name_key}
 		return
 	_play_sound("res://assets/audio/build.wav")
 	gold -= int(spec.cost)
 	towers.append({"cell": cell, "kind": selected, "cooldown": 0.0, "aim": Vector2.UP})
-	hint = "%s construida. Alcance: %.1f celdas." % [spec.name, spec.range]
+	hint = "game.built"
+	hint_args = {"name_key": spec.name_key, "range": spec.range}
 
 func _center(cell: Vector2i) -> Vector2:
 	return ORIGIN + Vector2(cell) * TILE + Vector2.ONE * TILE * 0.5
@@ -245,10 +260,14 @@ func _process(delta: float) -> void:
 	if not paused and not ended:
 		animation_time += delta
 		_tick(delta)
+		if ended and navigation != null:
+			navigation.show_page("result")
 	_refresh_ui()
 	renderer.queue_redraw()
 
 func _tick(delta: float) -> void:
+	if paused or ended:
+		return
 	for i in range(beams.size() - 1, -1, -1):
 		beams[i].ttl -= delta
 		if beams[i].ttl <= 0:
@@ -275,12 +294,13 @@ func _tick(delta: float) -> void:
 	if lives <= 0:
 		ended = true
 		active = false
-		hint = "El sello ha caído. Reinicia la semilla para volver a intentarlo."
+		hint = "game.defeat"
 	elif active and remaining == 0 and enemies.is_empty():
 		active = false
 		gold += int(balance.wave_bonus)
 		ended = wave >= int(balance.waves)
-		hint = "¡Victoria! La cripta está a salvo." if ended else "Oleada superada. +%d oro. Prepara tus defensas." % balance.wave_bonus
+		hint = "game.victory" if ended else "game.wave_complete"
+		hint_args = {"amount": balance.wave_bonus}
 
 func _panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -289,3 +309,22 @@ func _panel_style() -> StyleBoxFlat:
 	style.border_color = Color("304651")
 	style.set_corner_radius_all(10)
 	return style
+
+var locale_refresh_pending := false
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready() and not map_data.is_empty() and not locale_refresh_pending:
+		locale_refresh_pending = true
+		call_deferred("_refresh_locale")
+
+func _refresh_locale() -> void:
+	locale_refresh_pending = false
+	if not is_inside_tree():
+		return
+	for child in get_children():
+		if child is Control:
+			remove_child(child)
+			child.queue_free()
+	tower_buttons.clear()
+	_build_ui()
+	seed_input.text = str(seed_value)
+	_refresh_ui()

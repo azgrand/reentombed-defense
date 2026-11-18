@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "menu.play"
+msgstr "Jugar"
+
+msgid "menu.settings"
+msgstr "Ajustes"
+
+msgid "menu.quit"
+msgstr "Salir"
+
+msgid "menu.resume"
+msgstr "Continuar"
+
+msgid "menu.main"
+msgstr "Menú principal"
+
+msgid "menu.back"
+msgstr "Volver"
+
+msgid "menu.pause"
+msgstr "Pausa"
+
+msgid "menu.confirm"
+msgstr "Se perderá la partida actual. ¿Volver al menú?"
+
+msgid "menu.accept"
+msgstr "Confirmar"
+
+msgid "menu.cancel"
+msgstr "Cancelar"
+
+msgid "settings.language"
+msgstr "Idioma"
+
+msgid "settings.sound"
+msgstr "Sonido"
+
+msgid "settings.fullscreen"
+msgstr "Pantalla completa"
+
+msgid "game.subtitle"
+msgstr "EL BOSQUE DEL SELLO / Cada expedición abre un nuevo laberinto"
+
+msgid "shop.title"
+msgstr "ARSENAL"
+
+msgid "shop.card"
+msgstr "{shortcut}  {name} · {cost} oro\nDaño {damage} / Alcance {range}"
+
+msgid "game.start_wave"
+msgstr "Iniciar oleada [Espacio]"
+
+msgid "game.pause"
+msgstr "Pausa / Continuar [P]"
+
+msgid "game.seed"
+msgstr "Semilla entera"
+
+msgid "game.retry"
+msgstr "Repetir semilla"
+
+msgid "game.new_map"
+msgstr "Nuevo mapa"
+
+msgid "game.instructions"
+msgstr "Elige torre y pulsa una plataforma +. Clic derecho: vender al 65 %."
+
+msgid "game.bad_seed"
+msgstr "Introduce una semilla entera válida."
+
+msgid "game.diagnostics"
+msgstr "SEMILLA {seed} / RUTA {length} celdas / Rojo: entrada · Azul: castillo"
+
+msgid "game.stats"
+msgstr "ORO {gold}\nSELLO {lives} vidas\nOLEADA {wave} / {total}"
+
+msgid "game.paused"
+msgstr "PAUSA · Pulsa P para continuar"
+
+msgid "game.wave_started"
+msgstr "Oleada {wave} en marcha. Puedes seguir construyendo."
+
+msgid "game.blocked"
+msgstr "Solo se puede construir en plataformas +."
+
+msgid "game.occupied"
+msgstr "Esta plataforma ya tiene una torre."
+
+msgid "game.not_enough_gold"
+msgstr "Oro insuficiente para {name}."
+
+msgid "game.built"
+msgstr "{name} construida. Alcance: {range} celdas."
+
+msgid "game.defeat"
+msgstr "El sello ha caído."
+
+msgid "game.victory"
+msgstr "¡Victoria! El sello está a salvo."
+
+msgid "game.wave_complete"
+msgstr "Oleada superada. +{amount} oro. Prepara tus defensas."
+
+msgid "tower.bolt.name"
+msgstr "Aguja"
+
+msgid "tower.bolt.description"
+msgstr "Ataque rápido a un objetivo."
+
+msgid "tower.blast.name"
+msgstr "Mortero"
+
+msgid "tower.blast.description"
+msgstr "Daño de área."
+
+msgid "tower.frost.name"
+msgstr "Escarcha"
+
+msgid "tower.frost.description"
+msgstr "Ralentiza al enemigo."
+

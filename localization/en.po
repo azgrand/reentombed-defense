@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "menu.play"
+msgstr "Play"
+
+msgid "menu.settings"
+msgstr "Settings"
+
+msgid "menu.quit"
+msgstr "Quit"
+
+msgid "menu.resume"
+msgstr "Resume"
+
+msgid "menu.main"
+msgstr "Main Menu"
+
+msgid "menu.back"
+msgstr "Back"
+
+msgid "menu.pause"
+msgstr "Paused"
+
+msgid "menu.confirm"
+msgstr "Current run progress will be lost. Return to menu?"
+
+msgid "menu.accept"
+msgstr "Confirm"
+
+msgid "menu.cancel"
+msgstr "Cancel"
+
+msgid "settings.language"
+msgstr "Language"
+
+msgid "settings.sound"
+msgstr "Sound"
+
+msgid "settings.fullscreen"
+msgstr "Fullscreen"
+
+msgid "game.subtitle"
+msgstr "THE SEAL FOREST / Every expedition opens a new maze"
+
+msgid "shop.title"
+msgstr "ARSENAL"
+
+msgid "shop.card"
+msgstr "{shortcut}  {name} · {cost} gold\nDamage {damage} / Range {range}"
+
+msgid "game.start_wave"
+msgstr "Start wave [Space]"
+
+msgid "game.pause"
+msgstr "Pause / Resume [P]"
+
+msgid "game.seed"
+msgstr "Integer seed"
+
+msgid "game.retry"
+msgstr "Retry seed"
+
+msgid "game.new_map"
+msgstr "New map"
+
+msgid "game.instructions"
+msgstr "Choose a tower and click a + pad. Right click: sell for 65%."
+
+msgid "game.bad_seed"
+msgstr "Enter a valid integer seed."
+
+msgid "game.diagnostics"
+msgstr "SEED {seed} / ROUTE {length} cells / Red: entrance · Blue: castle"
+
+msgid "game.stats"
+msgstr "GOLD {gold}\nSEAL {lives} lives\nWAVE {wave} / {total}"
+
+msgid "game.paused"
+msgstr "PAUSED · Press P to resume"
+
+msgid "game.wave_started"
+msgstr "Wave {wave} started. You can keep building."
+
+msgid "game.blocked"
+msgstr "Build on + pads only."
+
+msgid "game.occupied"
+msgstr "This pad already has a tower."
+
+msgid "game.not_enough_gold"
+msgstr "Not enough gold for {name}."
+
+msgid "game.built"
+msgstr "Built {name}. Range: {range} cells."
+
+msgid "game.defeat"
+msgstr "The seal has fallen."
+
+msgid "game.victory"
+msgstr "Victory! The seal is safe."
+
+msgid "game.wave_complete"
+msgstr "Wave cleared. +{amount} gold. Prepare your defenses."
+
+msgid "tower.bolt.name"
+msgstr "Needle"
+
+msgid "tower.bolt.description"
+msgstr "Fast single-target attack."
+
+msgid "tower.blast.name"
+msgstr "Mortar"
+
+msgid "tower.blast.description"
+msgstr "Area damage."
+
+msgid "tower.frost.name"
+msgstr "Frost"
+
+msgid "tower.frost.description"
+msgstr "Slows enemies."
+

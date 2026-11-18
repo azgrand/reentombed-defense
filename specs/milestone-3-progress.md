@@ -22,3 +22,11 @@ Archivos: `entombed_mapper.gd` selecciona candidatos y distribuye plataformas; `
 Resultados Godot 4.6: 1000 rutas distintas, 10 entradas, 45 longitudes; cero fallos en suite completa. Revisadas las 20 capturas de semillas 0–17, 42 y 2026 en `specs/previews/milestone-3/contact-sheet.png`. Los PNG originales no cambian. No hay assets nuevos ni fallback. Confirmada continuidad visual, menor densidad de piedra y decoración fuera de áreas protegidas; hay claros amplios en algunas semillas, conservados para variar densidad. Renderer OpenGL/Mesa sobre Xvfb, con avisos de VSync y método de entrada no disponibles.
 
 Smoke manual: repetir semillas 0, 10, 42 y 2026, construir en piedra marcada, comprobar que césped colindante no permite construir. Preparada para C. Balance de nuevas longitudes sigue pendiente de partidas completas.
+
+## Fase C — MENU-01 / I18N-01
+
+Archivos nuevos: `scripts/services/settings_store.gd` (preferencias nativas ConfigFile), `scripts/ui/navigation.gd` (menú/pausa/resultado/confirmación), `settings_panel.gd`, `main_menu.gd`, `scenes/main_menu.tscn`, `localization/en.po`, `es.po`, `README.md`, `tools/check_localization.py`, `tools/capture_ui.gd`, `tests/test_preferences.gd`, `test_navigation.gd`. Modificados: arranque y traducciones en `project.godot`; claves semánticas en balance y schema; coordinador con pausa/transiciones e interfaz retraducible diferida; validador invoca comprobación de catálogos.
+
+Resultados: 40 claves completas con paridad de placeholders; preferencias/persistencia/defaults corruptos, menú, pausa sin avance de simulación y cambio ES/EN con partida abierta: OK. Suite de 1000 semillas y combate: cero fallos. Arranque real del menú y capturas revisadas: `menu.png`, `settings.png` (ES), `game.png` (EN). Se corrigió la reconstrucción de controles durante notificación de traducción usando actualización diferida. La confirmación protege la vuelta al menú; Esc en ajustes regresa al contexto anterior. Sin nuevos assets, castillo verde original para portada.
+
+Smoke: F5 → ajustes → alternar idioma/sonido → Jugar → P → ajustes → volver → continuar; probar derrota/victoria y acciones de repetir/nuevo/menú. Preparada para D. La tienda sigue siendo la de tres tarjetas hasta la fase siguiente. Pendientes: escuchar audio en dispositivo real y revisión completa de dificultad.

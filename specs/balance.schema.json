@@ -33,21 +33,19 @@
         "type": "object",
         "required": [
           "id",
-          "name",
           "cost",
           "damage",
           "range",
           "cooldown",
           "color",
           "splash",
-          "slow"
+          "slow",
+          "name_key",
+          "description_key"
         ],
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string"
-          },
-          "name": {
             "type": "string"
           },
           "cost": {
@@ -76,6 +74,12 @@
           "slow": {
             "type": "number",
             "minimum": 0
+          },
+          "name_key": {
+            "type": "string"
+          },
+          "description_key": {
+            "type": "string"
           }
         }
       }
