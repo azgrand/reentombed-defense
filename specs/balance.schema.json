@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "starting_gold",
+    "starting_lives",
+    "waves",
+    "wave_bonus",
+    "towers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "starting_gold": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "starting_lives": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "waves": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "wave_bonus": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "towers": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "cost",
+          "damage",
+          "range",
+          "cooldown",
+          "color",
+          "splash",
+          "slow"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "damage": {
+            "type": "number",
+            "minimum": 0
+          },
+          "range": {
+            "type": "number",
+            "minimum": 0
+          },
+          "cooldown": {
+            "type": "number",
+            "minimum": 0
+          },
+          "color": {
+            "type": "string"
+          },
+          "splash": {
+            "type": "number",
+            "minimum": 0
+          },
+          "slow": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "starting_gold": 180,
+  "starting_lives": 20,
+  "waves": 10,
+  "wave_bonus": 25,
+  "towers": [
+    {
+      "id": "bolt",
+      "name": "Aguja",
+      "cost": 50,
+      "damage": 16,
+      "range": 3.2,
+      "cooldown": 0.55,
+      "color": "67e8c4",
+      "splash": 0,
+      "slow": 1.0
+    },
+    {
+      "id": "blast",
+      "name": "Mortero",
+      "cost": 85,
+      "damage": 28,
+      "range": 3.8,
+      "cooldown": 1.5,
+      "color": "ffb86b",
+      "splash": 1.5,
+      "slow": 1.0
+    },
+    {
+      "id": "frost",
+      "name": "Escarcha",
+      "cost": 65,
+      "damage": 5,
+      "range": 2.8,
+      "cooldown": 0.75,
+      "color": "8ab4ff",
+      "splash": 0,
+      "slow": 0.45
+    }
+  ]
+}
