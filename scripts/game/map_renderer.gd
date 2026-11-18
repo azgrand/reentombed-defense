@@ -5,6 +5,17 @@ const TILE := 30.0
 const ORIGIN := Vector2(28, 112)
 var wave: int:
 	get: return game.wave
+const MapLayer = preload("res://scripts/game/map_layer.gd")
+var layer: Node2D
+
+func prepare_map() -> void:
+	if layer == null:
+		layer = MapLayer.new()
+		layer.game = game
+		layer.show_behind_parent = true
+		add_child(layer)
+	layer.queue_redraw()
+
 var game: Node
 var map_data: Dictionary:
 	get: return game.map_data
@@ -53,28 +64,7 @@ func _path_tile(cell: Vector2i, texture: Texture2D, kind: int, base: Color) -> v
 func _draw() -> void:
 	if map_data.is_empty():
 		return
-	# Framing and grass form a continuous surface rather than a debug grid.
 	draw_style_box(panel_style, Rect2(912, 100, 352, 652))
-	draw_rect(Rect2(ORIGIN - Vector2(4, 4), Vector2(Mapper.WIDTH, Mapper.HEIGHT) * TILE + Vector2(8, 8)), Color("51604b"), false, 2)
-	for y in range(Mapper.HEIGHT):
-		for x in range(Mapper.WIDTH):
-			var cell := Vector2i(x, y)
-			var rect := Rect2(ORIGIN + Vector2(cell) * TILE, Vector2.ONE * TILE)
-			draw_texture_rect(Art.GRASS, rect, false, Color("9caf9c"))
-			var value: int = map_data.cells[y][x]
-			if value == Mapper.PATH:
-				_path_tile(cell, Art.GROUND, Mapper.PATH, Color("b87048"))
-			elif value == Mapper.PAD:
-				_path_tile(cell, Art.STONE, Mapper.PAD, Color("777b79"))
-				var center := _center(cell)
-				draw_line(center - Vector2(3, 0), center + Vector2(3, 0), Color("ccd7c4"), 1)
-				draw_line(center - Vector2(0, 3), center + Vector2(0, 3), Color("ccd7c4"), 1)
-			elif value == Mapper.WALL:
-				# Stable per-cell variety without consuming the gameplay RNG.
-				var variation := absi(hash(Vector3i(x, y, seed_value)))
-				if variation % 4 == 0:
-					var decoration: Texture2D = Art.DECORATIONS[int(variation / 4) % Art.DECORATIONS.size()]
-					_sprite(decoration, _center(cell) + Vector2(0, 11), decoration.get_height() * 1.75)
 	var route: Array = map_data.route
 	var frame := int(animation_time * 6) % 4
 	_sprite(Art.ENTRANCE, _center(route[0]) + Vector2(0, 14), 44, frame, 4)

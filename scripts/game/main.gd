@@ -116,6 +116,7 @@ func _new_map(value: int) -> void:
 	animation_time = 0.0
 	seed_value = value
 	map_data = Mapper.generate(value)
+	renderer.prepare_map()
 	towers.clear()
 	enemies.clear()
 	beams.clear()

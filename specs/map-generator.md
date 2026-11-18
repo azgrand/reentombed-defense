@@ -1,4 +1,4 @@
-# Generador · contrato v0.2
+# Generador · contrato v0.3
 
 Entrada: semilla entera de 64 bits. Salida: diccionario `{seed, cells, route}`. Rejilla 29 × 21, `cells[y][x]`; 0 muro, 1 suelo decorativo, 2 camino reservado, 3 plataforma construible. `route` es una lista ordenada de Vector2i ortogonalmente adyacentes.
 
@@ -27,3 +27,11 @@ La generación contextual de cinco bits, por filas y con simetría está documen
 La aplicación usa un RNG local aleatorizado al abrirse para elegir semillas. Nuevo mapa consume otra semilla y evita repetir la actual. Repetir semilla usa la entrada escrita. La semilla y la longitud se muestran bajo el tablero. v0.2 sustituye las seis franjas fijas de v0.1: una semilla antigua produce un mapa nuevo con este generador.
 
 Una integración futura con un mapeador externo concreto puede reemplazar `EntombedMapper.generate` conservando este contrato. No se ha recibido ningún código externo de mapeador.
+
+## Selección y presentación v0.3
+
+Se generan exactamente 16 candidatos con semillas `seed * 104729 + index * 8191`. Se conserva el mayor score y el orden resuelve empates. Score: 200 − 0,7 × distancia de longitud a 85; penalización 40 fuera de 45–120; 3 por tramo de una celda antes de giro, 0,5 por otro giro, 0,4 por giro total y 0,4 por pares de segmentos cercanos separados en el recorrido. No se descartan mapas válidos por preferencias estéticas.
+
+Las plataformas candidatas se ordenan al recorrer la ruta y se muestrean de forma uniforme: entre 30 y 44, según longitud y disponibilidad. La prueba de 1000 semillas verifica el mínimo y la adyacencia. No se cambian los IDs de celda. Se añaden `generator_version`, `quality_score`, `theme` y `decorations`. Semillas v0.2 no son compatibles visualmente.
+
+Cinco centros de agrupación generan bosques; rocas y setas aparecen de forma más aislada. Un margen de una celda alrededor de camino, plataformas y portales excluye decoraciones. Tres tintes de terreno dependen de semilla. Se inspeccionaron semillas 0–17, 42 y 2026: menos piedra, grupos distinguibles, algunos claros amplios deliberados. La capa estática registra comandos Canvas una vez al generar, no en cada frame. El atlas 48×48 es un anillo de nueve regiones: se usan cuadrantes exteriores de 8px y base sólida para mantener continuidad, evitando huecos del centro transparente.

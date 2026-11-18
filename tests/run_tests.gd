@@ -42,6 +42,12 @@ func _run() -> void:
 						if visited.has(Vector2i(x, y) + direction):
 							adjacent = true
 					check(adjacent, "Pad without access to route")
+		check(generated.generator_version == "0.3", "Missing generator version")
+		for decoration in generated.decorations:
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					check(generated.cells[decoration.cell.y + dy][decoration.cell.x + dx] < Mapper.PATH, "Decoration overlaps protected area")
+		check(pads <= 44, "Excessive pad density")
 		check(pads >= 30, "Insufficient construction space")
 	check(route_signatures.size() == 1000, "Repeated route across distinct seeds")
 	check(entrance_rows.size() >= 8, "Entrance position lacks variety")

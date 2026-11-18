@@ -13,7 +13,70 @@ const DIRECTIONS := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
 const RULES := [1, 1, 1, -1, 0, 0, -1, 0, 1, 1, 1, 1, -1, 0, 0, 0,
 	1, 1, 1, -1, 0, 0, 0, 0, -1, 0, 1, -1, -1, 0, 0, 0]
 
+const Quality = preload("res://scripts/core/map_quality.gd")
+const GENERATOR_VERSION := "0.3"
+
 static func generate(map_seed: int) -> Dictionary:
+	var best: Dictionary = {}
+	var best_score := -INF
+	for index in range(16):
+		var candidate := _candidate(map_seed * 104729 + index * 8191)
+		var score: float = Quality.score(candidate.route)
+		if score > best_score:
+			best = candidate
+			best_score = score
+	best.seed = map_seed
+	best.generator_version = GENERATOR_VERSION
+	best.quality_score = best_score
+	_polish(best, map_seed)
+	return best
+
+static func _polish(result: Dictionary, map_seed: int) -> void:
+	var cells: Array = result.cells
+	var route: Array = result.route
+	var candidates: Array[Vector2i] = []
+	var seen := {}
+	for cell in route:
+		for direction in DIRECTIONS:
+			var neighbor: Vector2i = cell + direction
+			if neighbor.x <= 0 or neighbor.y <= 0 or neighbor.x >= WIDTH - 1 or neighbor.y >= HEIGHT - 1:
+				continue
+			if cells[neighbor.y][neighbor.x] == PAD and not seen.has(neighbor):
+				seen[neighbor] = true
+				candidates.append(neighbor)
+	for cell in candidates:
+		cells[cell.y][cell.x] = FLOOR
+	# Sampling evenly along route order distributes pads across all sections.
+	var target := mini(candidates.size(), maxi(30, mini(44, int(route.size() / 2))))
+	for i in range(target):
+		var cell: Vector2i = candidates[int(float(i) * candidates.size() / target)]
+		cells[cell.y][cell.x] = PAD
+	var rng := RandomNumberGenerator.new()
+	rng.seed = map_seed
+	result.theme = rng.randi_range(0, 2)
+	var clusters: Array[Vector2i] = []
+	for i in range(5):
+		clusters.append(Vector2i(rng.randi_range(2, WIDTH - 3), rng.randi_range(2, HEIGHT - 3)))
+	var decorations: Array[Dictionary] = []
+	for y in range(1, HEIGHT - 1):
+		for x in range(1, WIDTH - 1):
+			var cell := Vector2i(x, y)
+			var safe := true
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					if cells[y + dy][x + dx] >= PATH:
+						safe = false
+			if not safe:
+				continue
+			var clustered := false
+			for center in clusters:
+				if cell.distance_squared_to(center) <= 10:
+					clustered = true
+			if rng.randf() < (0.5 if clustered else 0.045):
+				decorations.append({"cell": cell, "kind": rng.randi_range(0, 1) if clustered else rng.randi_range(2, 3)})
+	result.decorations = decorations
+
+static func _candidate(map_seed: int) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = map_seed
 	var cells: Array = []

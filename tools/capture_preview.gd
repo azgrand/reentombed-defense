@@ -34,7 +34,7 @@ func _capture() -> void:
 		game.enemies[-1].progress = 2.0 + i * 3.7
 	game.animation_time = 0.5
 	game._refresh_ui()
-	game.queue_redraw()
+	game.renderer.queue_redraw()
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var error := root.get_texture().get_image().save_png(output)
