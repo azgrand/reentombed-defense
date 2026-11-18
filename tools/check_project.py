@@ -10,6 +10,10 @@ for key in ("starting_gold", "starting_lives", "waves", "wave_bonus"):
     assert isinstance(balance[key], int) and balance[key] > 0, key
 assert len(balance["towers"]) >= 7
 assert len({tower["id"] for tower in balance["towers"]}) == len(balance["towers"])
+progression = balance["progression"]
+for key, length in (("damage_multipliers",4), ("range_additions",4), ("aura_bonuses",4), ("upgrade_multipliers",3)):
+    assert len(progression[key]) == length and all(isinstance(value, (float, int)) and value >= 0 for value in progression[key]), key
+assert 0 <= progression["refund_factor"] < 1
 for tower in balance["towers"]:
     for key in ("cost", "range"):
         assert tower[key] > 0, (tower["id"], key)

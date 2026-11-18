@@ -156,3 +156,36 @@ msgstr "Estandarte"
 msgid "tower.banner.description"
 msgstr "Aura: aliados disparan un 15% más rápido. Solo se aplica la más fuerte."
 
+msgid "upgrade.level"
+msgstr "Nivel {level}/4"
+
+msgid "upgrade.action"
+msgstr "Mejorar · {cost} oro"
+
+msgid "upgrade.sell"
+msgstr "Vender · +{amount} oro"
+
+msgid "upgrade.max"
+msgstr "Nivel máximo"
+
+msgid "upgrade.next"
+msgstr "Siguiente: daño {damage}, alcance {range}, aura {aura}%"
+
+msgid "upgrade.current"
+msgstr "Daño {damage} · Alcance {range}\nRecarga {cooldown}s · DPS {dps}"
+
+msgid "upgrade.success"
+msgstr "Torre mejorada."
+
+msgid "upgrade.insufficient"
+msgstr "Oro insuficiente para mejorar."
+
+msgid "upgrade.close"
+msgstr "Cerrar"
+
+msgid "upgrade.support_current"
+msgstr "Apoyo · Aura +{aura}%\nAlcance {range}"
+
+msgid "upgrade.support_next"
+msgstr "Siguiente: aura +{aura}%, alcance {range}"
+

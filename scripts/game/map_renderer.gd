@@ -88,6 +88,11 @@ func _draw() -> void:
 		var center := _center(tower.cell)
 		draw_circle(center + Vector2(0, 6), 10, Color(0, 0, 0, 0.22))
 		_sprite(Art.tower_texture(balance.towers[tower.kind].id), center + Vector2(0, 10), 42, frame if balance.towers[tower.kind].id == "banner" else 0, Art.tower_frames(balance.towers[tower.kind].id))
+		for pip in range(int(tower.level)):
+			draw_circle(center + Vector2(-9 + pip * 6, 12), 2, Color("f4db70") if tower.level == 4 else Color("d1e4cb"))
+		var bonus: float = game.TowerSystem.aura_bonus(game, tower)
+		if bonus > 0:
+			draw_arc(center, 13, 0, TAU, 20, Color(0.5, 0.9, 0.6, 0.55), 1)
 	for enemy in enemies:
 		var center := _enemy_position(enemy)
 		var texture: Texture2D = Art.ARMORED if enemy.armored else Art.ENEMIES[(wave - 1) % Art.ENEMIES.size()]

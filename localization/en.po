@@ -156,3 +156,36 @@ msgstr "Banner"
 msgid "tower.banner.description"
 msgstr "Aura: allies fire 15% faster. Only the strongest aura applies."
 
+msgid "upgrade.level"
+msgstr "Level {level}/4"
+
+msgid "upgrade.action"
+msgstr "Upgrade · {cost} gold"
+
+msgid "upgrade.sell"
+msgstr "Sell · +{amount} gold"
+
+msgid "upgrade.max"
+msgstr "Maximum level"
+
+msgid "upgrade.next"
+msgstr "Next: damage {damage}, range {range}, aura {aura}%"
+
+msgid "upgrade.current"
+msgstr "Damage {damage} · Range {range}\nCooldown {cooldown}s · DPS {dps}"
+
+msgid "upgrade.success"
+msgstr "Tower upgraded."
+
+msgid "upgrade.insufficient"
+msgstr "Not enough gold to upgrade."
+
+msgid "upgrade.close"
+msgstr "Close"
+
+msgid "upgrade.support_current"
+msgstr "Support · Aura +{aura}%\nRange {range}"
+
+msgid "upgrade.support_next"
+msgstr "Next: aura +{aura}%, range {range}"
+

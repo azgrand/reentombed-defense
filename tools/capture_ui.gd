@@ -16,6 +16,17 @@ func run() -> void:
 	elif mode not in ["menu", "settings"]:
 		scene.set_process(false)
 		scene._new_map(42)
+		if mode == "upgrade":
+			scene.gold = 1000
+			for y in range(scene.Mapper.HEIGHT):
+				for x in range(scene.Mapper.WIDTH):
+					if scene.towers.is_empty() and scene.map_data.cells[y][x] == scene.Mapper.PAD:
+						scene._place_tower(Vector2i(x,y))
+			scene.selected_tower = scene.towers[0]
+			for i in range(3):
+				scene._upgrade_selected()
+			scene.details.refresh()
+			scene.details.show()
 		if mode == "shop":
 			scene.shop.show_details(3)
 	Input.warp_mouse(Vector2(1250, 60))

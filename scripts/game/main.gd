@@ -36,6 +36,9 @@ var wave_button: Button
 var tower_buttons: Array[Button] = []
 const TowerShop = preload("res://scripts/ui/tower_shop.gd")
 var shop: VBoxContainer
+const TowerDetails = preload("res://scripts/ui/tower_details.gd")
+var details: PanelContainer
+var selected_tower: Dictionary = {}
 var hint := "game.instructions"
 var hint_args := {}
 const Navigation = preload("res://scripts/ui/navigation.gd")
@@ -114,6 +117,9 @@ func _build_ui() -> void:
 	add_child(seed_input)
 	_button(tr("game.retry"), Vector2(1084, 654), Vector2(164, 38), _restart_seed)
 	_button(tr("game.new_map"), Vector2(928, 704), Vector2(320, 38), _random_map)
+	details = TowerDetails.new()
+	details.game = self
+	add_child(details)
 	message = _label("", Vector2(28, 772), Vector2(1220, 36), 17)
 
 func _new_map(value: int) -> void:
@@ -121,6 +127,9 @@ func _new_map(value: int) -> void:
 	seed_value = value
 	map_data = Mapper.generate(value)
 	renderer.prepare_map()
+	selected_tower = {}
+	if details != null:
+		details.hide()
 	towers.clear()
 	enemies.clear()
 	beams.clear()
@@ -154,6 +163,9 @@ func _restart_seed() -> void:
 func _select(index: int) -> void:
 	if index < 0 or index >= balance.towers.size():
 		return
+	selected_tower = {}
+	if details != null:
+		details.hide()
 	selected = index
 	_refresh_ui()
 
@@ -177,6 +189,8 @@ func _refresh_ui() -> void:
 	if arguments.has("name_key"):
 		arguments.name = tr(arguments.name_key)
 	message.text = tr("game.paused") if paused else tr(hint).format(arguments)
+	if details != null and not selected_tower.is_empty():
+		details.refresh()
 
 func _start_wave() -> void:
 	if active or ended or paused:
@@ -192,6 +206,10 @@ func _start_wave() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE and not selected_tower.is_empty():
+			selected_tower = {}
+			details.hide()
+			return
 		if seed_input.has_focus():
 			return
 		if event.keycode >= KEY_1 and event.keycode < KEY_1 + balance.towers.size():
@@ -206,13 +224,24 @@ func _unhandled_input(event: InputEvent) -> void:
 		if cell.x < 0 or cell.y < 0 or cell.x >= Mapper.WIDTH or cell.y >= Mapper.HEIGHT:
 			return
 		if event.button_index == MOUSE_BUTTON_RIGHT:
-			for i in range(towers.size()):
-				if towers[i].cell == cell:
-					gold += int(balance.towers[towers[i].kind].cost * 0.65)
-					towers.remove_at(i)
+			for tower in towers:
+				if tower.cell == cell:
+					selected_tower = tower
+					_sell_selected()
 					break
 		elif event.button_index == MOUSE_BUTTON_LEFT:
-			_place_tower(cell)
+			var occupied := false
+			for tower in towers:
+				if tower.cell == cell:
+					selected_tower = tower
+					details.refresh()
+					details.show()
+					occupied = true
+					break
+			if not occupied:
+				selected_tower = {}
+				details.hide()
+				_place_tower(cell)
 		_refresh_ui()
 		renderer.queue_redraw()
 
@@ -341,6 +370,37 @@ func _refresh_locale() -> void:
 	tower_buttons.clear()
 	_build_ui()
 	seed_input.text = str(seed_value)
+	if not selected_tower.is_empty():
+		details.refresh()
+		details.show()
 	if inspection >= 0:
 		shop.show_details(inspection)
 	_refresh_ui()
+
+func _upgrade_selected() -> bool:
+	if paused or ended or selected_tower.is_empty() or not towers.has(selected_tower) or int(selected_tower.level) >= 4:
+		return false
+	var cost := TowerSystem.upgrade_cost(balance.towers[selected_tower.kind], selected_tower, balance.progression)
+	if gold < cost:
+		hint = "upgrade.insufficient"
+		_refresh_ui()
+		return false
+	gold -= cost
+	selected_tower.total_invested += cost
+	selected_tower.level += 1
+	hint = "upgrade.success"
+	_refresh_ui()
+	renderer.queue_redraw()
+	return true
+
+func _sell_selected() -> int:
+	if paused or ended or selected_tower.is_empty() or not towers.has(selected_tower):
+		return 0
+	var refund := TowerSystem.refund(selected_tower, balance.progression)
+	gold += refund
+	towers.erase(selected_tower)
+	selected_tower = {}
+	details.hide()
+	_refresh_ui()
+	renderer.queue_redraw()
+	return refund

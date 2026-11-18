@@ -1,7 +1,28 @@
 extends RefCounted
 ## Shared targeting/stats. Never mutates definitions or credits rewards.
-static func stats(definition: Dictionary, _tower: Dictionary) -> Dictionary:
-	return definition.duplicate(true)
+static func stats(definition: Dictionary, tower: Dictionary, progression: Dictionary) -> Dictionary:
+	var result := definition.duplicate(true)
+	var index := clampi(int(tower.get("level", 1)) - 1, 0, 3)
+	result.damage = float(definition.damage) * float(progression.damage_multipliers[index])
+	result.range = float(definition.range) + float(progression.range_additions[index])
+	if definition.behavior == "aura":
+		result.aura_bonus = progression.aura_bonuses[index]
+	return result
+
+static func upgrade_cost(definition: Dictionary, tower: Dictionary, progression: Dictionary) -> int:
+	var level := int(tower.level)
+	if level >= 4:
+		return 0
+	return int(ceil(float(definition.cost) * float(progression.upgrade_multipliers[level - 1])))
+
+static func refund(tower: Dictionary, progression: Dictionary) -> int:
+	return int(floor(float(tower.total_invested) * float(progression.refund_factor)))
+
+static func computed_stats(game: Node, tower: Dictionary) -> Dictionary:
+	var result := stats(game.balance.towers[tower.kind], tower, game.balance.progression)
+	if result.behavior != "aura":
+		result.cooldown = float(result.cooldown) / (1.0 + aura_bonus(game, tower))
+	return result
 
 static func aura_bonus(game: Node, tower: Dictionary) -> float:
 	var strongest := 0.0
@@ -11,7 +32,7 @@ static func aura_bonus(game: Node, tower: Dictionary) -> float:
 		var definition: Dictionary = game.balance.towers[ally.kind]
 		if definition.behavior != "aura":
 			continue
-		var computed := stats(definition, ally)
+		var computed := stats(definition, ally, game.balance.progression)
 		if Vector2(ally.cell).distance_to(Vector2(tower.cell)) <= float(computed.range):
 			strongest = maxf(strongest, computed.aura_bonus)
 	return strongest
@@ -32,7 +53,7 @@ static func hit(enemy: Dictionary, spec: Dictionary, damage: float) -> void:
 
 static func fire(game: Node, delta: float) -> void:
 	for tower in game.towers:
-		var spec := stats(game.balance.towers[tower.kind], tower)
+		var spec := computed_stats(game, tower)
 		if spec.behavior == "aura":
 			continue
 		tower.cooldown -= delta
@@ -50,7 +71,7 @@ static func fire(game: Node, delta: float) -> void:
 			continue
 		var position_value: Vector2 = game._enemy_position(target)
 		tower.aim = origin.direction_to(position_value)
-		tower.cooldown = float(spec.cooldown) / (1.0 + aura_bonus(game, tower))
+		tower.cooldown = float(spec.cooldown)
 		game.beams.append({"from": origin, "to": position_value, "color": Color(spec.color), "ttl": 0.18, "kind": tower.kind})
 		match spec.behavior:
 			"chain":

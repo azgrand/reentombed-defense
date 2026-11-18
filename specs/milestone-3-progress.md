@@ -38,3 +38,11 @@ Archivos: balance y schema con siete comportamientos y parámetros; `tower_syste
 Assets sin fallback: Veneno→poison_wizard, Tormenta→lightning_tower, Balista→crossbow, Estandarte→normal_tower_01_green (cuatro frames). Proyectiles correspondientes para atacantes; Estandarte no dispara.
 
 Pruebas: suite de 1000 semillas/combate generalizada a siete torres, cero fallos. Test específico comprueba poison refresh/no-stack, expiración con delta grande, pausa, recompensa única, cadena de cuatro impactos con caída 70%, perforación de tres, aura strongest-only y exclusión propia. Navegación e idioma continúan OK. Validador: 51 claves, referencias, balance y parámetros. Smoke: teclas 1–7, comprar cada tipo, hover/foco con poco oro; revisar efectos con semilla 42. Preparada para E. No se ha cambiado economía ni precios base.
+
+## Fase E — TWR-02
+
+Archivos: `balance.json` y schema contienen progresión autoritativa; `tower_system.gd` comparte cálculo de estadísticas efectivas, coste y reembolso; `main.gd` añade transacciones atómicas y selección independiente de instancia; `tower_details.gd` muestra nivel, stats actuales/siguientes, Upgrade/Sell; renderer dibuja pips y aura; catálogos incluyen acciones y feedback; `test_upgrades.gd` valida las siete torres.
+
+Pruebas: cero fallos en todas las fórmulas, inversión acumulada, máximo, oro insuficiente, venta pausada rechazada, ventas repetidas/referencias obsoletas, ausencia de arbitraje, mejoras durante oleadas, limpieza al reset y geometría intacta. Pruebas de efectos y navegación siguen pasando. Captura de nivel 4 revisada; se reforzó fondo del panel para lectura sobre el mapa. No cambian sprites ni escala; nivel 4 usa pips dorados.
+
+Smoke: semilla 42, construir Aguja, seleccionarla, mejorar con oro de oleadas y vender; Estandarte nivel 4 muestra aura 30%. Las operaciones no se permiten en pausa/resultado. Preparada para F. No se ha reajustado balance sin evidencia de partidas completas.

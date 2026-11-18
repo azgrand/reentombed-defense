@@ -6,7 +6,8 @@
     "starting_lives",
     "waves",
     "wave_bonus",
-    "towers"
+    "towers",
+    "progression"
   ],
   "additionalProperties": false,
   "properties": {
@@ -206,6 +207,60 @@
             }
           }
         ]
+      }
+    },
+    "progression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "damage_multipliers",
+        "range_additions",
+        "aura_bonuses",
+        "upgrade_multipliers",
+        "refund_factor"
+      ],
+      "properties": {
+        "damage_multipliers": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "range_additions": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "aura_bonuses": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "upgrade_multipliers": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "refund_factor": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
       }
     }
   }
