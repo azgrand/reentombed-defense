@@ -1,10 +1,10 @@
 # Reentombed Defense
 
-Prototipo de tower defense 2D para **Godot 4.3 o posterior (Godot 4.x)**, GDScript y renderizador Compatibility. Sin addons ni dependencias de ejecución externas.
+Prototipo de tower defense 2D para **Godot 4.6 estable**, GDScript y renderizador Compatibility. Sin addons ni dependencias de ejecución externas.
 
 ## Ejecutar
 
-1. Instala Godot 4.3+ (edición estándar; no necesita .NET).
+1. Instala Godot 4.6 estable (edición estándar; no necesita .NET).
 2. Importa `project.godot` y pulsa **F6/F5** para jugar.
 3. Construye en las plataformas `+` junto al camino y pulsa Espacio para iniciar cada oleada.
 

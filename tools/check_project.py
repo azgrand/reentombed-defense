@@ -8,8 +8,8 @@ root = Path(__file__).resolve().parents[1]
 balance = json.loads((root / "data/balance.json").read_text())
 for key in ("starting_gold", "starting_lives", "waves", "wave_bonus"):
     assert isinstance(balance[key], int) and balance[key] > 0, key
-assert len(balance["towers"]) == 3
-assert len({tower["id"] for tower in balance["towers"]}) == 3
+assert len(balance["towers"]) >= 3
+assert len({tower["id"] for tower in balance["towers"]}) == len(balance["towers"])
 for tower in balance["towers"]:
     for key in ("cost", "damage", "range", "cooldown"):
         assert tower[key] > 0, (tower["id"], key)

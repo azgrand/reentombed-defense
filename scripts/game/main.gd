@@ -2,6 +2,9 @@ extends Node2D
 
 const Mapper = preload("res://scripts/core/entombed_mapper.gd")
 const Art = preload("res://scripts/game/art.gd")
+const TowerSystem = preload("res://scripts/game/tower_system.gd")
+const MapRenderer = preload("res://scripts/game/map_renderer.gd")
+var renderer: Node2D
 const TILE := 30.0
 const ORIGIN := Vector2(28, 112)
 var balance: Dictionary
@@ -37,6 +40,9 @@ func _ready() -> void:
 	balance = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
 	add_child(sound)
 	panel_style = _panel_style()
+	renderer = MapRenderer.new()
+	renderer.game = self
+	add_child(renderer)
 	_build_ui()
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	map_rng.randomize()
@@ -88,7 +94,7 @@ func _build_ui() -> void:
 		var text_value := "%d   %s · %d oro
 Daño %d / Alcance %.1f" % [i + 1, spec.name, spec.cost, spec.damage, spec.range]
 		var button := _button(text_value, Vector2(928, 162 + i * 84), Vector2(320, 72), _select.bind(i))
-		button.icon = Art.TOWERS[i]
+		button.icon = Art.TOWERS[spec.id]
 		button.expand_icon = true
 		button.add_theme_constant_override("icon_max_width", 24)
 		button.add_theme_constant_override("h_separation", 14)
@@ -125,7 +131,7 @@ func _new_map(value: int) -> void:
 	seed_input.text = str(value)
 	hint = "Elige torre (1–3) y pulsa una plataforma +. Clic derecho: vender al 65 %."
 	_refresh_ui()
-	queue_redraw()
+	renderer.queue_redraw()
 
 func _random_map() -> void:
 	var next_seed := map_rng.randi()
@@ -140,6 +146,8 @@ func _restart_seed() -> void:
 		hint = "Introduce una semilla entera válida."
 
 func _select(index: int) -> void:
+	if index < 0 or index >= balance.towers.size():
+		return
 	selected = index
 	_refresh_ui()
 
@@ -173,10 +181,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if seed_input.has_focus():
 			return
+		if event.keycode >= KEY_1 and event.keycode < KEY_1 + balance.towers.size():
+			_select(event.keycode - KEY_1)
 		match event.keycode:
-			KEY_1: _select(0)
-			KEY_2: _select(1)
-			KEY_3: _select(2)
 			KEY_SPACE: _start_wave()
 			KEY_P: _toggle_pause()
 	if event is InputEventMouseButton and event.pressed:
@@ -194,9 +201,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			_place_tower(cell)
 		_refresh_ui()
-		queue_redraw()
+		renderer.queue_redraw()
 
 func _place_tower(cell: Vector2i) -> void:
+	if cell.x < 0 or cell.y < 0 or cell.x >= Mapper.WIDTH or cell.y >= Mapper.HEIGHT:
+		return
 	if map_data.cells[cell.y][cell.x] != Mapper.PAD:
 		hint = "Solo se puede construir en plataformas +."
 		return
@@ -236,7 +245,7 @@ func _process(delta: float) -> void:
 		animation_time += delta
 		_tick(delta)
 	_refresh_ui()
-	queue_redraw()
+	renderer.queue_redraw()
 
 func _tick(delta: float) -> void:
 	for i in range(beams.size() - 1, -1, -1):
@@ -254,33 +263,7 @@ func _tick(delta: float) -> void:
 		if enemy.slow_time <= 0:
 			enemy.slow = 1.0
 		enemy.progress += delta * enemy.speed * enemy.slow
-	for tower in towers:
-		tower.cooldown -= delta
-		if tower.cooldown > 0:
-			continue
-		var spec: Dictionary = balance.towers[tower.kind]
-		var origin := _center(tower.cell)
-		var target: Dictionary = {}
-		for enemy in enemies:
-			if enemy.hp <= 0 or enemy.progress >= map_data.route.size() - 1:
-				continue
-			if origin.distance_to(_enemy_position(enemy)) <= float(spec.range) * TILE:
-				if target.is_empty() or enemy.progress > target.progress:
-					target = enemy
-		if target.is_empty():
-			continue
-		var hit := _enemy_position(target)
-		tower.aim = origin.direction_to(hit)
-		beams.append({"from": origin, "to": hit, "color": Color(spec.color), "ttl": 0.18, "kind": tower.kind})
-		tower.cooldown = float(spec.cooldown)
-		for enemy in enemies:
-			if enemy.hp <= 0:
-				continue
-			if enemy.id == target.id or (float(spec.splash) > 0 and _enemy_position(enemy).distance_to(hit) <= float(spec.splash) * TILE):
-				enemy.hp -= float(spec.damage)
-				if float(spec.slow) < 1.0:
-					enemy.slow = float(spec.slow)
-					enemy.slow_time = 1.6
+	TowerSystem.fire(self, delta)
 	for i in range(enemies.size() - 1, -1, -1):
 		if enemies[i].hp <= 0:
 			gold += 12 if enemies[i].armored else 7
@@ -297,89 +280,6 @@ func _tick(delta: float) -> void:
 		gold += int(balance.wave_bonus)
 		ended = wave >= int(balance.waves)
 		hint = "¡Victoria! La cripta está a salvo." if ended else "Oleada superada. +%d oro. Prepara tus defensas." % balance.wave_bonus
-
-# All source sheets have four horizontal frames; each frame is kept intact.
-func _sprite(texture: Texture2D, feet: Vector2, height: float, frame: int = 0, frames: int = 1, tint: Color = Color.WHITE) -> void:
-	var source := Rect2(float(texture.get_width()) / frames * frame, 0, float(texture.get_width()) / frames, texture.get_height())
-	var size_value := Vector2(source.size.x / source.size.y * height, height)
-	draw_texture_rect_region(texture, Rect2(feet - Vector2(size_value.x * 0.5, size_value.y), size_value), source, tint)
-
-func _path_tile(cell: Vector2i, texture: Texture2D, kind: int, base: Color) -> void:
-	var rect := Rect2(ORIGIN + Vector2(cell) * TILE, Vector2.ONE * TILE)
-	draw_rect(rect, base)
-	var left := cell.x > 0 and int(map_data.cells[cell.y][cell.x - 1]) == kind
-	var right := cell.x < Mapper.WIDTH - 1 and int(map_data.cells[cell.y][cell.x + 1]) == kind
-	var top := cell.y > 0 and int(map_data.cells[cell.y - 1][cell.x]) == kind
-	var bottom := cell.y < Mapper.HEIGHT - 1 and int(map_data.cells[cell.y + 1][cell.x]) == kind
-	var atlas_x := 0 if not left else (32 if not right else 16)
-	var atlas_y := 0 if not top else (32 if not bottom else 16)
-	draw_texture_rect_region(texture, rect, Rect2(atlas_x, atlas_y, 16, 16))
-
-func _draw() -> void:
-	if map_data.is_empty():
-		return
-	# Framing and grass form a continuous surface rather than a debug grid.
-	draw_style_box(panel_style, Rect2(912, 100, 352, 652))
-	draw_rect(Rect2(ORIGIN - Vector2(4, 4), Vector2(Mapper.WIDTH, Mapper.HEIGHT) * TILE + Vector2(8, 8)), Color("51604b"), false, 2)
-	for y in range(Mapper.HEIGHT):
-		for x in range(Mapper.WIDTH):
-			var cell := Vector2i(x, y)
-			var rect := Rect2(ORIGIN + Vector2(cell) * TILE, Vector2.ONE * TILE)
-			draw_texture_rect(Art.GRASS, rect, false, Color("9caf9c"))
-			var value: int = map_data.cells[y][x]
-			if value == Mapper.PATH:
-				_path_tile(cell, Art.GROUND, Mapper.PATH, Color("b87048"))
-			elif value == Mapper.PAD:
-				_path_tile(cell, Art.STONE, Mapper.PAD, Color("777b79"))
-				var center := _center(cell)
-				draw_line(center - Vector2(3, 0), center + Vector2(3, 0), Color("ccd7c4"), 1)
-				draw_line(center - Vector2(0, 3), center + Vector2(0, 3), Color("ccd7c4"), 1)
-			elif value == Mapper.WALL:
-				# Stable per-cell variety without consuming the gameplay RNG.
-				var variation := absi(hash(Vector3i(x, y, seed_value)))
-				if variation % 4 == 0:
-					var decoration: Texture2D = Art.DECORATIONS[int(variation / 4) % Art.DECORATIONS.size()]
-					_sprite(decoration, _center(cell) + Vector2(0, 11), decoration.get_height() * 1.75)
-	var route: Array = map_data.route
-	var frame := int(animation_time * 6) % 4
-	_sprite(Art.ENTRANCE, _center(route[0]) + Vector2(0, 14), 44, frame, 4)
-	_sprite(Art.CASTLE, _center(route[-1]) + Vector2(0, 14), 48, frame, 4)
-	# Discrete directional marks help distinguish the enemy lane from scenery.
-	for i in range(3, route.size() - 2, 7):
-		var center := _center(route[i])
-		var direction := Vector2(route[i + 1] - route[i])
-		var side := Vector2(-direction.y, direction.x)
-		draw_line(center - direction * 3 + side * 3, center + direction * 2, Color(1, 0.88, 0.66, 0.5), 1)
-		draw_line(center - direction * 3 - side * 3, center + direction * 2, Color(1, 0.88, 0.66, 0.5), 1)
-	var hover := Vector2i(((get_global_mouse_position() - ORIGIN) / TILE).floor())
-	if hover.x >= 0 and hover.y >= 0 and hover.x < Mapper.WIDTH and hover.y < Mapper.HEIGHT:
-		if map_data.cells[hover.y][hover.x] == Mapper.PAD:
-			var radius: float = float(balance.towers[selected].range) * TILE
-			draw_circle(_center(hover), radius, Color(0.6, 0.95, 0.8, 0.10))
-			draw_arc(_center(hover), radius, 0, TAU, 64, Color(0.6, 0.95, 0.8, 0.6), 1)
-			var occupied := false
-			for tower in towers:
-				if tower.cell == hover:
-					occupied = true
-			if not occupied and not ended:
-				_sprite(Art.TOWERS[selected], _center(hover) + Vector2(0, 10), 42, 0, 1, Color(1, 1, 1, 0.5))
-	for tower in towers:
-		var center := _center(tower.cell)
-		draw_circle(center + Vector2(0, 6), 10, Color(0, 0, 0, 0.22))
-		_sprite(Art.TOWERS[tower.kind], center + Vector2(0, 10), 42)
-	for enemy in enemies:
-		var center := _enemy_position(enemy)
-		var texture: Texture2D = Art.ARMORED if enemy.armored else Art.ENEMIES[(wave - 1) % Art.ENEMIES.size()]
-		var tint := Color("8ab4ff") if enemy.slow < 1 else Color.WHITE
-		draw_circle(center + Vector2(0, 6), 8, Color(0, 0, 0, 0.25))
-		_sprite(texture, center + Vector2(0, 8), 25 if enemy.armored else 19, (int(animation_time * 8) + int(enemy.id)) % 4, 4, tint)
-		draw_rect(Rect2(center + Vector2(-10, -20), Vector2(20, 3)), Color("1a1f2a"))
-		draw_rect(Rect2(center + Vector2(-10, -20), Vector2(20 * maxf(0, enemy.hp / enemy.max_hp), 3)), Color("a5ed86"))
-	for beam in beams:
-		var progress := clampf(1.0 - float(beam.ttl) / 0.18, 0.0, 1.0)
-		var position_value: Vector2 = beam.from.lerp(beam.to, progress)
-		_sprite(Art.PROJECTILES[beam.kind], position_value, 10)
-		draw_arc(beam.to, 4 + progress * 9, 0, TAU, 16, Color(beam.color, 1.0 - progress), 2)
 
 func _panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
